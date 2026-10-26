@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List </title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: pink; }
+        .container { max-width: 600px; margin: auto; background:grey; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        ul { list-style: none; padding: 0; }
+        li { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #ddd; align-items: center; gap: 10px; }
+        .done { text-decoration: line-through; color: gray; }
+        form.inline { display: inline; }
+        input[type="text"] { padding: 8px; width: 70%; }
+        input[name="title"] { padding: 6px; width: 180px; }
+        button { padding: 8px 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>To-Do List </h2>
+        <div>
+            Hi, {{ name }} | 
+            <a href="{{ url_for('list_books') }}" class="btn" style="background-color: palevioletred; padding: 5px 10px; text-decoration: none; border-radius: 4px; color: black; font-weight: bold;">Go to Library</a> | 
+            <a href="/logout">Log out</a>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul style="color:pink; margin: 10px 0;">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <p style="color: #666; font-size: 14px; margin-top: 10px;">
+         You have <strong>{{ open_count }}</strong> open task(s) remaining.
+    </p>
+
+    <form action="/add" method="POST" style="margin-top: 20px;">
+        <input type="text" name="title" placeholder="What needs to be done?" required>
+        <button type="submit">Add</button>
+    </form>
+
+    <ul>
+        {% for todo in todos %}
+        <li>
+            <form action="/toggle/{{ todo.todo_id }}" method="POST" class="inline">
+                <button type="submit">{% if todo.is_done %}✓{% else %}○{% endif %}</button>
+            </form>
+
+        
+            <form action="/edit/{{ todo.todo_id }}" method="POST" class="inline" style="flex-grow: 1; display: flex; gap: 5px;">
+                <input type="text" name="title" value="{{ todo.title }}" required maxlength="200" style="width: 100%;">
+                <button type="submit">Save</button>
+            </form>
+
+            
+            <form action="/delete/{{ todo.todo_id }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?');">
+                <button type="submit" style="color: red;">Delete</button>
+            </form>
+        </li>
+        {% else %}
+        <p>No to-dos yet!</p>
+        {% endfor %}
+    </ul>
+</div>
+</body>
+</html>
